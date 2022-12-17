@@ -62,10 +62,12 @@ private:
         }
         return len;
     }
-    void replace(int64_t _signed_value) {
+    void replace(int64_t _signed_value, bool init = false) {
         // 포인터 청소
-        if (arraylength > 1) delete [] value;
-        else delete value;
+        if (!init) {
+            if (arraylength > 1) delete [] value;
+            else delete value;
+        }
         //delete[] str;
         // 음수 부호 분리
         if (_signed_value < 0) {
@@ -77,11 +79,13 @@ private:
         getlength();
         num2str(*value);
     }
-    void replace(uint64_t _value) {
+    void replace(uint64_t _value, bool init = false) {
         // 포인터 청소
         sign = 1;
-        if (arraylength > 1) delete [] value;
-        else delete value;
+        if (!init) {
+            if (arraylength > 1) delete [] value;
+            else delete value;
+        }
         //delete [] str;
         getlength(_value);
         value = new uint64_t;
@@ -98,10 +102,12 @@ private:
         }
         num2str(_value);
     }
-    void replace(const char* _value) {
+    void replace(const char* _value, bool init = false) {
         // 포인터 청소
-        if (arraylength > 1) delete [] value;
-        else delete value;
+        if (!init) {
+            if (arraylength > 1) delete [] value;
+            else delete value;
+        }
         //delete [] str;
         str2num (_value);
         if (*value == 0) {
@@ -154,17 +160,9 @@ private:
                 uint64_t* result = new uint64_t(0ULL);
                 return result;
             }
-        } else if ((_value[0] == 0) || (_value[0] == '0')) {
-            if (internal) {
-                setzero();
-                return value;
-            } else {
-                uint64_t* result = new uint64_t(0ULL);
-                return result;
-            }
         }
         bool _signshift = (_value[0] == '-');
-        if ((_signshift) && (_value[1] == 0) || (_signshift) && (_value[1] == '0')) {
+        if ((_value[_signshift] == 0) || (_value[_signshift] <= '0') || (_value[_signshift] > '9')) {
             if (internal) {
                 setzero();
                 return value;
@@ -177,7 +175,8 @@ private:
         uint8_t firstarraylength = len%19;
         int _arraylength = (len/19)+(firstarraylength>0 ? 1:0);
         uint64_t* result = (uint64_t*)malloc(_arraylength);
-        uint8_t arr = 0, cursor = 0 + _signshift;
+        uint8_t arr = 0;
+        uint16_t cursor = 0 + _signshift;
         // first container (first rest of numbers)
         result[_arraylength-1] = 0; //initialize
         for (; cursor < firstarraylength + _signshift; ++cursor) {
@@ -226,7 +225,7 @@ public:
     explicit superlong(int64_t _value) {
         value = new uint64_t(0);
         char* _str = new char;
-        replace(_value);
+        replace(_value, true);
     }
     explicit superlong(bool _value) {
         superlong((uint64_t)_value);
@@ -243,12 +242,12 @@ public:
     explicit superlong(uint64_t _value) {
         value = new uint64_t(0);
         char* _str = new char;
-        replace(_value);
+        replace(_value, true);
     }
     explicit superlong(const char* _value) {
         value = new uint64_t(0);
         char* _str = new char;
-        replace(_value);
+        replace(_value, true);
     }
     ~superlong() {
         // if (arraylength > 1) delete[] value;
@@ -308,21 +307,24 @@ public:
 };
 #endif
 
-
 superlong mynumber;
 using namespace std;
 void print() {
-    cout << "Value: ";
+    cout << "Sign: " << (mynumber.sign?'+':'-');
+    cout << " / Length: " << mynumber.length;
+    cout << " / ArrayLength: " << mynumber.arraylength;
+    cout << "\nValue";
     if (mynumber.arraylength > 1) {
-        for (int i = mynumber.arraylength-1; i >= 0; i--) {
-            cout << mynumber.value[i] << " ";
+        cout << "[" << mynumber.arraylength << "] = { " << mynumber.value[mynumber.arraylength-1];
+        for (int i = mynumber.arraylength-2; i >= 0; i--) {
+            cout << ", 1" << mynumber.value[i];
         }
-    } else cout << *mynumber.value;
-    cout << "\n";
-    cout << "Sign: " << (mynumber.sign?'+':'-') << " / Length: " << mynumber.length << " / ArrayLength: " << mynumber.arraylength << " / String: \"" << mynumber << "\"\n";
+        cout << " }" << endl;
+    } else cout << ": " << *mynumber.value << endl;
+    cout << "String: \"" << mynumber << "\"\n";
     cout << "==============================" << endl;
 }
-int main() {
+/*int main() {
     uint64_t input1 = ULLONG_MAX;
     int64_t input2 = LLONG_MAX;
     int16_t input3 = -789;
@@ -346,4 +348,18 @@ int main() {
     print();
     mynumber = input6;
     print();
+}
+*/
+int main() {
+    char* str = new char[3000];
+    /*for (int i = 0; i < 101; i++) {
+        for (int j = 9; j >= 0; j--) str[(i*10)+(9-j)] = j+'0';
+    }
+    mynumber = str;
+    print();*/
+    while (mynumber.str[0] != '0') {
+        cout << "Input your number > ";
+        cin >> mynumber;
+        print();
+    }
 }
