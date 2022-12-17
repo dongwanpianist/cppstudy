@@ -357,6 +357,7 @@ int main() {
     }
     mynumber = str;
     print();*/
+    mynumber = 1;
     while (mynumber.str[0] != '0') {
         cout << "Input your number > ";
         cin >> mynumber;
