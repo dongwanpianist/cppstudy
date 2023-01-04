@@ -1,4 +1,39 @@
 // BOJ10699를 푸느라 만든 시간관리 클래스
+// class myclock
+// 비공개 변수 및 메소드: 여기에 기재할 필요가 없음
+// 직접접근 변수:
+//  내부적으로 처리하는 것들은 비공개로 잘 숨겨놓았고,
+//  다음과 같이 직접 읽으면 편리한 변수들은 캡슐화하지 않았음. 읽을때 get함수에 인자없이 괄호()만 덧붙이는 게 싫어서...
+//    std::chrono::system_clock::time_point& tpvalue
+//    uint16_t year, month, day, hour, minute, second, weekday ( weekday = {1부터 7까지 일월화수목금토} )
+//    std::string strdate, strweekday, strtime, strfull ( strfull = 앞선 3가지 str을 합침 )
+// 메소드:
+//  초기화
+//    myclock()
+//    myclock(std::string timezone_abbreviation)
+//    myclock(int16_t utc, int16_t utcminute = 0)
+//    myclock(const std::chrono::system_clock::time_point& tp)
+//    myclock(const date_t newdate)
+//    myclock(const datetime_t newdatetime)
+//  현재시간 입력
+//    void now()
+//    void now(std::string timezone_abbreviation)
+//    void now(int16_t utc, int16_t utcminute = 0)
+//  임의시간 입력
+//    void set(const std::chrono::system_clock::time_point& newtp)
+//    void set(const date_t newdate)
+//    void set(const datetime_t newdatetime)
+//  단위 연산
+//    void addsecond(int moresecond, bool calcdate = true)
+//    void addminute(int moreminute, bool calcdate = true, bool refresh_str = true)
+//    void addhour(int morehour, bool calcdate = true, bool refresh_str = true)
+//    void addday(int moreday)
+//  누락된 연산을 갱신 (특히 직접접근으로 변수 값을 변경한 직후에 필수)
+//    void refresh()
+//  시간대 변경
+//    void timezone(std::string timezone_abbreviation)
+//    void timezone(int16_t utc, int16_t utcminute = 0)
+
 #include <iostream>
 #include <chrono>
 #include <ctime>
@@ -158,6 +193,9 @@ public:
         tpvalue = tp;
         decode_tp();
     }
+    myclock(const date_t newdate) {
+        init_custom(newdate);
+    }
     myclock(const datetime_t newdatetime) {
         init_custom(newdatetime);
     }
@@ -183,12 +221,6 @@ public:
     void set(const datetime_t newdatetime) {
         init_custom(newdatetime);
     }
-    void addday(int moreday) {
-        day_epoch += moreday;
-        second_epoch += (moreday * 86400);
-        decode_day_epoch(false);
-        encode_str();
-    }
     void addsecond(int moresecond, bool calcdate = true) {
         second_epoch += moresecond;
         decode_second_epoch(calcdate);
@@ -203,6 +235,12 @@ public:
         second_epoch += (morehour * 3600);
         decode_second_epoch(calcdate);
         if (refresh_str) encode_str();
+    }
+    void addday(int moreday) {
+        day_epoch += moreday;
+        second_epoch += (moreday * 86400);
+        decode_day_epoch(false);
+        encode_str();
     }
     void refresh() {
         encode_day_epoch();
@@ -306,22 +344,10 @@ public:
         if (A.second != B.second) return false;
         return true;
     }
-    friend bool operator==(const datetime_t& A, const myclock& B) {
-        if (A.year != B.year) return false;
-        if (A.month != B.month) return false;
-        if (A.day != B.day) return false;
-        if (A.hour != B.hour) return false;
-        if (A.minute != B.minute) return false;
-        if (A.second != B.second) return false;
-        return true;
-    }
     friend bool operator!=(const myclock& A, const myclock& B) {
         return !(A == B);
     }
     friend bool operator!=(const myclock& A, const datetime_t& B) {
-        return !(A == B);
-    }
-    friend bool operator!=(const datetime_t& A, const myclock& B) {
         return !(A == B);
     }
 };
