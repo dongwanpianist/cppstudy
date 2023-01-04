@@ -49,7 +49,7 @@ private:
             carry = (newdatetime.minute + carry) / 60;
         hour = (newdatetime.hour + carry) % 24;
             carry = (newdatetime.hour + carry) / 24;
-        day = newdatetime.day + carry; // day carry missing: 다시 디코드할 것
+        day = newdatetime.day + carry; // day->month carry missing: 다시 디코드할 것
         month = ((newdatetime.month - 1) % 12) + 1;
             carry = (newdatetime.month - 1) / 12;
         year = newdatetime.year + carry;
