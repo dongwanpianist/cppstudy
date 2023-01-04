@@ -1,5 +1,10 @@
 // BOJ10699를 푸느라 만든 시간관리 클래스
-// class myclock
+// 오래된 C시절의 <ctime>이 싫어서 신식(?) <chrono>만 사용하고자 했으며,
+// HowardHinnant의 time을 참고함.
+// main에서 현재시간 입력, 임의시간 입력, 시간단위 더하기, 시간대 변경 모두 정상작동.
+// 잘못 입력된 시간 자동보정: 2월 30일인 경우 윤년에 3월 1일, 평년에 3월 2일로 찰떡같이 넣어줌.
+//
+// myclock 클래스
 // 비공개 변수 및 메소드: 여기에 기재할 필요가 없음
 // 직접접근 변수:
 //  내부적으로 처리하는 것들은 비공개로 잘 숨겨놓았고,
@@ -33,10 +38,13 @@
 //  시간대 변경
 //    void timezone(std::string timezone_abbreviation)
 //    void timezone(int16_t utc, int16_t utcminute = 0)
+//  연산자
+//    가감(초단위) + - += -=
+//    입력 =
+//    비교 == !=
 
 #include <iostream>
 #include <chrono>
-#include <ctime>
 #include <string>
 typedef struct date_t {
     uint16_t year = 1970;
