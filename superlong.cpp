@@ -126,13 +126,13 @@ char* _numtostr(uint32_t _value) {
 }
 char* _numtostr(uint64_t _value, bool positive) {
     if (_value == 0) {
-        char* _zero = (char*)calloc(1, 2);
+        char* _zero = new char[2];
         _zero[0] = '0';
         _zero[1] = 0;
         return _zero;
     }
     size_t l = _numlen(_value);\
-    char* result = (char*)calloc(1, l+!positive+1);
+    char* result = new char[l+!positive+1];
     result[l+!positive] = 0;
     if (!positive) result[0] = '-';
     for (size_t i = l+!positive-1; i >= !positive; i--) {
@@ -158,7 +158,7 @@ char* _strduplicate(const char* str) { return
       _strduplicate((char*)str); }
 char* _strduplicate(char* str) {
     size_t l = _strlen(str);
-    char* newstr = (char*)calloc(1, l+1);
+    char* newstr = new char[l+1];
     for (size_t i = 0; i < l+1; i++) newstr[i] = str[i];
     return newstr;
 }
@@ -168,7 +168,7 @@ char* _strappend(char* str1, char* str2) {
     int32_t len1 = _strlen(str1);
     int32_t len2 = _strlen(str2);
     size_t i;
-    char* newstr = (char*)calloc(1, len1 + len2 + 1);
+    char* newstr = new char[len1 + len2 + 1];
     for (i = 0; i < len1; i++) newstr[i] = str1[i];
     for (i = 0; i < len2; i++) newstr[i+len1] = str2[i];
     newstr[len1 + len2 + 1] = 0;
@@ -179,7 +179,7 @@ char* _strappendchar(char ch1, uint16_t times, const char* str2) { return
 char* _strappendchar(char ch1, uint16_t times, char* str2) {
     int32_t len2 = _strlen(str2);
     size_t i;
-    char* newstr = (char*)calloc(1, times + len2 + 1);
+    char* newstr = new char[times + len2 + 1];
     for (i = 0; i < times; i++) newstr[i] = ch1;
     for (i = 0; i < len2; i++) newstr[times+i] = str2[i];
     newstr[times + len2] = 0;
@@ -190,7 +190,7 @@ char* _strappendchar(const char* str1, char ch2, uint16_t times) { return
 char* _strappendchar(char* str1, char ch2, uint16_t times) {
     int32_t len1 = _strlen(str1);
     size_t i;
-    char* newstr = (char*)calloc(1, len1 + times + 1);
+    char* newstr = new char[len1 + times + 1];
     for (i = 0; i < len1; i++) newstr[i] = str1[i];
     for (i = 0; i < times; i++) newstr[len1+i] = ch2;
     newstr[len1 + times] = 0;
@@ -198,7 +198,7 @@ char* _strappendchar(char* str1, char ch2, uint16_t times) {
 }
 char* _charrepeat(char _ch, uint16_t times) {
     size_t i;
-    char* newstr = (char*)calloc(1, times + 1);
+    char* newstr = new char[times + 1];
     for (i = 0; i < times; i++) newstr[i] = _ch;
     newstr[times] = 0;
     return newstr;
@@ -206,12 +206,16 @@ char* _charrepeat(char _ch, uint16_t times) {
 char* _substr(const char* _str, int position, int length) { return
       _substr((char*)_str, position, length); }
 char* _substr(char* _str, int position, int length) {
-    int32_t newlen = _strlen(_str);
-    if (length > 0) if (position+length < newlen) newlen = position+length;
-    char* result = (char*)calloc(1, newlen);
-    for (int i = position; i < newlen; i++) {
-        result[i-position] = _str[i];
+    if (length == 0) {
+        if (position == 0) return _strduplicate(_str);
+        length = _strlen(_str) - position;
+    } else {
+        int32_t len = _strlen(_str);
+        if (length > len - position) length = len - position;
     }
+    char* result = new char[length + 1];
+    for (int32_t i = 0; i < length; i++) result[i] = _str[i+position];
+    result[length] = 0;
     return result;
 }
 void FFT(std::vector<std::complex<double> > &arr, bool reverse) {
@@ -297,8 +301,10 @@ public:
     bool sign;
     bool minus;
     superlong();
+    //~superlong();
     superlong(const char*);
     superlong(char*);
+    superlong(superlong*);
     superlong& refresh();
     superlong& trimzeros();
     superlong& matchzeros(superlong&);
@@ -335,7 +341,7 @@ public:
     friend bool operator>(const superlong& num1, char* str2) {
         char* chstr2 = _strduplicate(str2);
         bool result = (comparenumstr(num1.str, chstr2) == '>');
-        free(chstr2);
+        delete[] chstr2;
         return result;
     }
     friend bool operator>(const superlong& num1, const superlong& num2) {
@@ -346,7 +352,7 @@ public:
     friend bool operator<(const superlong& num1, char* str2) {
         char* chstr2 = _strduplicate(str2);
         bool result = (comparenumstr(num1.str, chstr2) == '<');
-        free(chstr2);
+        delete[] chstr2;
         return result;
     }
     friend bool operator<(const superlong& num1, const superlong& num2) {
@@ -357,7 +363,7 @@ public:
     friend bool operator==(const superlong& num1, char* str2) {
         char* chstr2 = _strduplicate(str2);
         bool result = (comparenumstr(num1.str, chstr2) == '=');
-        free(chstr2);
+        delete[] chstr2;
         return result;
     }
     friend bool operator==(const superlong& num1, const superlong& num2) {
@@ -368,7 +374,7 @@ public:
     friend bool operator!=(const superlong& num1, char* str2) {
         char* chstr2 = _strduplicate(str2);
         bool result = (comparenumstr(num1.str, chstr2) != '=');
-        free(chstr2);
+        delete[] chstr2;
         return result;
     }
     friend bool operator!=(const superlong& num1, const superlong& num2) {
@@ -396,8 +402,8 @@ public:
         char* numstr2 = _numtostr(num2);
         matchzeros(numstr1, numstr2);
         superlong result(addnumstr(numstr1, numstr2));
-        free(numstr1);
-        free(numstr2);
+        delete[] numstr1;
+        delete[] numstr2;
         return result;
     }
     friend superlong operator+(const superlong& num1, const char* str2) { return
@@ -407,16 +413,16 @@ public:
         char* numstr2 = _strduplicate(str2);
         numberize(numstr2);
         superlong result(addnumstr(numstr1, numstr2, true, false));
-        free(numstr1);
-        free(numstr2);
+        delete[] numstr1;
+        delete[] numstr2;
         return result;
     }
     friend superlong operator+(const superlong& num1, const superlong& num2) {
         char* numstr1 = _strduplicate(num1.str);
         char* numstr2 = _strduplicate(num2.str);
         superlong result(addnumstr(numstr1, numstr2, true, false));
-        free(numstr1);
-        free(numstr2);
+        delete[] numstr1;
+        delete[] numstr2;
         return result;
     }
     friend superlong operator-(const superlong& num1, int num2);
@@ -430,22 +436,24 @@ public:
         char* numstr2 = _strduplicate(num2.str);
         matchzeros(numstr1, numstr2);
         superlong result(subtractnumstr(numstr1, numstr2, true, true, false));
-        free(numstr1);
-        free(numstr2);
+        delete[] numstr1;
+        delete[] numstr2;
         return result;
     }
     superlong& operator++() { // prefix
         char* one = onestr();
         matchzeros((char*&)str, one);
         str = addnumstr((char*)str, one);
-        free(one);
+        delete[] one;
+        refresh();
         return *this;
     }
     superlong& operator--() { // prefix
         char* one = onestr();
         matchzeros((char*&)str, one);
         str = subtractnumstr((char*)str, one);
-        free(one);
+        delete[] one;
+        refresh();
         return *this;
     }
     superlong operator++(int) { // postfix
@@ -469,16 +477,16 @@ public:
         char* numstr1 = _strduplicate(num1.str);
         char* numstr2 = _strduplicate(num2.str);
         superlong result = superlong(multiplynumstr(numstr1, numstr2, true, false, false));
-        free(numstr1);
-        free(numstr2);
+        delete[] numstr1;
+        delete[] numstr2;
         return result;
     }
     friend superlong operator/(const superlong& num1, const superlong& num2) {
         char* numstr1 = _strduplicate(num1.str);
         char* numstr2 = _strduplicate(num2.str);
         superlong result = superlong(dividenumstr(numstr1, numstr2, true, false).quotient);
-        free(numstr1);
-        free(numstr2);
+        delete[] numstr1;
+        delete[] numstr2;
         return result;
     }
     friend int16_t operator%(const superlong& num1, int num2) {
@@ -505,7 +513,7 @@ public:
         numberize(chstr2);
         if (comparenumstr(absstrnum(chstr2), (char*)"11") == '>') return -99;
         int16_t result = operator%(num1, atoi((const char*)chstr2));
-        free(chstr2);
+        delete[] chstr2;
         return result;
     }
     friend int16_t operator%(const superlong& num1, char* str2) {
@@ -513,7 +521,7 @@ public:
         numberize(chstr2);
         if (comparenumstr(absstrnum(chstr2), (char*)"11") == '>') return -99;
         int16_t result = operator%(num1, atoi((const char*)chstr2));
-        free(chstr2);
+        delete[] chstr2;
         return result;
     }
     friend int16_t operator%(const superlong& num1, const superlong& str2) {
@@ -744,13 +752,13 @@ int16_t superlong::mod11(char* _str, bool minus11) {
     return result;
 }
 inline char* superlong::zerostr() {
-    char* _zero = (char*)calloc(1, 2);
+    char* _zero = new char[2];
     _zero[0] = '0';
     _zero[1] = 0;
     return _zero;
 }
 inline char* superlong::onestr() {
-    char* _one = (char*)calloc(1, 2);
+    char* _one = new char[2];
     _one[0] = '1';
     _one[1] = 0;
     return _one;
@@ -769,10 +777,9 @@ void superlong::trimzeros(char*& _str) {
         return;
     }
     bool minus = (_str[0] == '-');
-    int zerocount = 0;
+    int zerocount = minus;
     int len = _strlen(_str);
-    if (minus) zerocount++;
-    for (; zerocount < len-1; zerocount++)
+    for (; zerocount < len; zerocount++)
         if (_str[zerocount] != '0') break;
     _str = _substr(_str, zerocount);
     if (minus) _str = _strappendchar('-', 1, _str);
@@ -814,12 +821,9 @@ void superlong::numberize(char*& _str) {
     if (_str[0] == 0) return;
     bool minus = (_str[0] == '-');
     int32_t l = _strlen(_str);
-    //std::cout << "\nstrlen:  '" << l << "'\n";
     for (uint32_t i = minus; i < l; i++)
         if ((_str[i] < '0') || (_str[i] > '9')) _str[i] = 0;
-    //std::cout << "\nnumberized:  '" << _str << "'\n";
     trimzeros(_str);
-    //std::cout << "\nzerotrimmed: '" << _str << "'\n";
 }
 char* superlong::flipsign(const char* _str, bool numberized) {
     return flipsign((char*)_str, numberized);
@@ -830,11 +834,11 @@ char* superlong::flipsign(char* _str, bool numberized) {
     if (!numberized) numberize(_str);
     size_t len = _strlen(_str);
     if (_str[0] == '-') {
-        char* _plusstr = (char*)calloc(1, len);
+        char* _plusstr = new char[len];
         for (size_t i = 0; i <= len; i++) _plusstr[i] = _str[i+1];
         return _plusstr;
     } else {
-        char* _minusstr = (char*)calloc(1, len+2);
+        char* _minusstr = new char[len+2];
         _minusstr[0] = '-';
         for (size_t i = 0; i <= len; i++) _minusstr[i+1] = _str[i];
         return _minusstr;
@@ -878,8 +882,8 @@ char* superlong::addnumstr(const char* &str1, const char* &str2, bool numberized
     char* chstr1 = _strduplicate(str1);
     char* chstr2 = _strduplicate(str2);
     char* result = addnumstr(chstr1, chstr2, numberized, zeromatched);
-    free(chstr1);
-    free(chstr2);
+    delete[] chstr1;
+    delete[] chstr2;
     return result;
 }
 char* superlong::addnumstr(char* str1, char* str2, bool numberized, bool zeromatched) {
@@ -897,7 +901,7 @@ char* superlong::addnumstr(char* str1, char* str2, bool numberized, bool zeromat
     bool str1m = isminus(str1);
     bool str2m = isminus(str2);
     if (str1m == str2m) {
-        char* result = (char*)calloc(1, len+1); // 뒤 '\0' 공간 확보 (앞 '-' 공간 포함)
+        char* result = new char[len+1]; // 뒤 '\0' 공간 확보 (앞 '-' 공간 포함)
         result[len] = 0;
         for (size_t i = len-1; i >= str1m; i--) {
             calc = (str1[i]-'0') + (str2[i]-'0') + carry10;
@@ -948,8 +952,8 @@ char* superlong::subtractnumstr(const char* &str1, const char* &str2, bool numbe
     char* chstr1 = _strduplicate(str1);
     char* chstr2 = _strduplicate(str2);
     char* result = subtractnumstr(chstr1, chstr2, numberized, zeromatched, absolute);
-    free(chstr1);
-    free(chstr2);
+    delete[] chstr1;
+    delete[] chstr2;
     return result;
 }
 char* superlong::subtractnumstr(char* str1, char* str2, bool numberized, bool zeromatched, bool absolute) {
@@ -1005,7 +1009,7 @@ char* superlong::subtractnumstr(char* str1, char* str2, bool numberized, bool ze
     // finally, absolute standard subtraction (positive big - positive small) like 5 - 3 = 2
     // or already processed numbers to (+big) - (+small):
     size_t len = _strlen(str1);
-    char* result = (char*)calloc(1, len+1);
+    char* result = new char[len+1];
     result[len] = 0;
     bool carry10 = false;
     int8_t calc;
@@ -1025,8 +1029,8 @@ char* superlong::multiplynumstr(const char* &str1, const char* &str2, bool numbe
     char* chstr1 = _strduplicate(str1);
     char* chstr2 = _strduplicate(str2);
     char* result = multiplynumstr(chstr1, chstr2, numberized, zeromatched, absolute);
-    free(chstr1);
-    free(chstr2);
+    delete[] chstr1;
+    delete[] chstr2;
     return result;
 }
 char* superlong::multiplynumstr(char* str1, char* str2, bool numberized, bool zeromatched, bool absolute) {
@@ -1082,7 +1086,7 @@ char* superlong::multiplynumstr(char* str1, char* str2, bool numberized, bool ze
     // reverse again (with trimzero)
     size_t firstvalidnum = ilast = calc.size() - 1;
     for (i = calc.size(); i-- > 0;) if (calc[i] != 0) { firstvalidnum = i; break; }
-    char* result = (char*)calloc(1, firstvalidnum+2);
+    char* result = new char[firstvalidnum+2];
     for (size_t i = 0; i <= firstvalidnum; i++) result[i] = calc[firstvalidnum-i]+'0';
     result[firstvalidnum+1] = 0;
     return result;
@@ -1091,8 +1095,8 @@ superlong::divisionstr superlong::dividenumstr(const char* &str1, const char* &s
     char* chstr1 = _strduplicate(str1);
     char* chstr2 = _strduplicate(str2);
     superlong::divisionstr result = dividenumstr(chstr1, chstr2, numberized, zeromatched);
-    free(chstr1);
-    free(chstr2);
+    delete[] chstr1;
+    delete[] chstr2;
     return result;
 }
 superlong::divisionstr superlong::dividenumstr(char* str1, char* str2, bool numberized, bool zeromatched) {
@@ -1122,11 +1126,7 @@ superlong::divisionstr superlong::dividenumstr(char* str1, char* str2, bool numb
 }
 superlong superlong::factorial(const superlong& num) {
     superlong newnum(num), i(num);
-    while (--i) {
-        std::cout << " i = '" << i.str << "'   /   ";
-        newnum *= i;
-        std::cout << " newnum = '" << newnum.str << "'\n";
-    }
+    while (--i) newnum *= i;
     return newnum;
 }
 superlong::superlong() {
@@ -1135,6 +1135,9 @@ superlong::superlong() {
     minus = 0;
     str = zerostr();
 }
+//superlong::~superlong() {
+//    delete[] str;
+//}
 superlong::superlong(const char* newstr) {
     if (!isnumeric(newstr)) superlong();
     else {
@@ -1148,6 +1151,10 @@ superlong::superlong(char* newstr) {
         str = (const char*)newstr;
         refresh();
     }
+}
+superlong::superlong(superlong* samenum) {
+    str = _strduplicate(samenum->str);
+    refresh();
 }
 superlong& superlong::refresh() {
     numberize(str);
@@ -1291,7 +1298,7 @@ int main() {
              << "               = " << mynum1.abs() << "\n";
         */
 
-        //cout << "   !:            !" << mynum1 << "\n"
-        //     << "               = " << !mynum1 << "\n";
+        cout << "   !:            !" << mynum1 << "\n"
+             << "               = " << !mynum1 << "\n";
     }
 }
