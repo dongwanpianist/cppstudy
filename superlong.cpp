@@ -301,9 +301,12 @@ public:
     bool sign;
     bool minus;
     superlong();
-    //~superlong();
-    superlong(const char*);
+    ~superlong();
+    superlong(const char*&);
     superlong(char*);
+    superlong(const int&);
+    superlong(const int64_t&);
+    superlong(const uint64_t&);
     superlong(superlong*);
     superlong& refresh();
     superlong& trimzeros();
@@ -317,77 +320,357 @@ public:
     static char compare(const superlong&, const superlong&);
 
     operator bool() const {
-        return (compare(*this, zerostr()) != '=');
+        return (comparenumstr(str, zerostr()) != '=');
     }
-    superlong& operator=(const char* newstr) {
+    superlong& operator=(const char* &newstr) {
         if (!isnumeric(newstr)) superlong();
-        else { str = newstr; refresh(); }
+        else { str = _strduplicate(newstr); refresh(); }
         return *this;
     }
-    superlong& operator=(char* newstr) {
+    superlong& operator=(char* &newstr) {
         if (!isnumeric(newstr)) superlong();
-        else { str = newstr; refresh(); }
+        else { str = _strduplicate(newstr); refresh(); }
         return *this;
     }
     superlong& operator=(const superlong& number) {
         length = number.length;
         sign = number.sign;
         minus = number.minus;
-        str = number.str;
+        str = _strduplicate(number.str);
         return *this;
     }
-    friend bool operator>(const superlong& num1, const char* str2) { return
-                operator>(num1, (char*)str2); }
-    friend bool operator>(const superlong& num1, char* str2) {
+    friend bool operator>(const superlong& num1, const char* &str2) {
+        char* chstr1 = _strduplicate(num1.str);
         char* chstr2 = _strduplicate(str2);
-        bool result = (comparenumstr(num1.str, chstr2) == '>');
+        bool result = (comparenumstr(chstr1, chstr2) == '>');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator>(const superlong& num1, const int &num2) {
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _numtostr(num2);
+        bool result = (comparenumstr(chstr1, chstr2) == '>');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator>(const superlong& num1, const int64_t &num2) {
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _numtostr(num2);
+        bool result = (comparenumstr(chstr1, chstr2) == '>');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator>(const superlong& num1, const uint64_t &num2) {
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _numtostr(num2);
+        bool result = (comparenumstr(chstr1, chstr2) == '>');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator>(const char* &str1, const superlong& num2) {
+        char* chstr1 = _strduplicate(str1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '>');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator>(const int &num1, const superlong& num2) {
+        char* chstr1 = _numtostr(num1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '>');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator>(const int64_t &num1, const superlong& num2) {
+        char* chstr1 = _numtostr(num1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '>');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator>(const uint64_t &num1, const superlong& num2) {
+        char* chstr1 = _numtostr(num1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '>');
+        delete[] chstr1;
         delete[] chstr2;
         return result;
     }
     friend bool operator>(const superlong& num1, const superlong& num2) {
-        return (comparenumstr(num1.str, num2.str) == '>');
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '>');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
     }
-    friend bool operator<(const superlong& num1, const char* str2) { return
-                operator<(num1, (char*)str2); }
-    friend bool operator<(const superlong& num1, char* str2) {
+    friend bool operator<(const superlong& num1, const char* &str2) {
+        char* chstr1 = _strduplicate(num1.str);
         char* chstr2 = _strduplicate(str2);
-        bool result = (comparenumstr(num1.str, chstr2) == '<');
+        bool result = (comparenumstr(chstr1, chstr2) == '<');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator<(const superlong& num1, const int &num2) {
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _numtostr(num2);
+        bool result = (comparenumstr(chstr1, chstr2) == '<');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator<(const superlong& num1, const int64_t &num2) {
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _numtostr(num2);
+        bool result = (comparenumstr(chstr1, chstr2) == '<');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator<(const superlong& num1, const uint64_t &num2) {
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _numtostr(num2);
+        bool result = (comparenumstr(chstr1, chstr2) == '<');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator<(const char* &str1, const superlong& num2) {
+        char* chstr1 = _strduplicate(str1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '<');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator<(const int &num1, const superlong& num2) {
+        char* chstr1 = _numtostr(num1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '<');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator<(const int64_t &num1, const superlong& num2) {
+        char* chstr1 = _numtostr(num1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '<');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator<(const uint64_t &num1, const superlong& num2) {
+        char* chstr1 = _numtostr(num1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '<');
+        delete[] chstr1;
         delete[] chstr2;
         return result;
     }
     friend bool operator<(const superlong& num1, const superlong& num2) {
-        return (comparenumstr(num1.str, num2.str) == '<');
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '<');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
     }
-    friend bool operator==(const superlong& num1, const char* str2) { return
-                operator==(num1, (char*)str2); }
-    friend bool operator==(const superlong& num1, char* str2) {
+    friend bool operator==(const superlong& num1, const char* &str2) {
+        char* chstr1 = _strduplicate(num1.str);
         char* chstr2 = _strduplicate(str2);
-        bool result = (comparenumstr(num1.str, chstr2) == '=');
+        bool result = (comparenumstr(chstr1, chstr2) == '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator==(const superlong& num1, const int &num2) {
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _numtostr(num2);
+        bool result = (comparenumstr(chstr1, chstr2) == '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator==(const superlong& num1, const int64_t &num2) {
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _numtostr(num2);
+        bool result = (comparenumstr(chstr1, chstr2) == '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator==(const superlong& num1, const uint64_t &num2) {
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _numtostr(num2);
+        bool result = (comparenumstr(chstr1, chstr2) == '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator==(const char* &str1, const superlong& num2) {
+        char* chstr1 = _strduplicate(str1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator==(const int &num1, const superlong& num2) {
+        char* chstr1 = _numtostr(num1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator==(const int64_t &num1, const superlong& num2) {
+        char* chstr1 = _numtostr(num1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator==(const uint64_t &num1, const superlong& num2) {
+        char* chstr1 = _numtostr(num1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '=');
+        delete[] chstr1;
         delete[] chstr2;
         return result;
     }
     friend bool operator==(const superlong& num1, const superlong& num2) {
-        return (comparenumstr(num1.str, num2.str) == '=');
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) == '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
     }
-    friend bool operator!=(const superlong& num1, const char* str2) { return
-                operator!=(num1, (char*)str2); }
-    friend bool operator!=(const superlong& num1, char* str2) {
+    friend bool operator!=(const superlong& num1, const char* &str2) {
+        char* chstr1 = _strduplicate(num1.str);
         char* chstr2 = _strduplicate(str2);
-        bool result = (comparenumstr(num1.str, chstr2) != '=');
+        bool result = (comparenumstr(chstr1, chstr2) != '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator!=(const superlong& num1, const int &num2) {
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _numtostr(num2);
+        bool result = (comparenumstr(chstr1, chstr2) != '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator!=(const superlong& num1, const int64_t &num2) {
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _numtostr(num2);
+        bool result = (comparenumstr(chstr1, chstr2) != '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator!=(const superlong& num1, const uint64_t &num2) {
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _numtostr(num2);
+        bool result = (comparenumstr(chstr1, chstr2) != '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator!=(const char* &str1, const superlong& num2) {
+        char* chstr1 = _strduplicate(str1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) != '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator!=(const int &num1, const superlong& num2) {
+        char* chstr1 = _numtostr(num1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) != '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator!=(const int64_t &num1, const superlong& num2) {
+        char* chstr1 = _numtostr(num1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) != '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
+    }
+    friend bool operator!=(const uint64_t &num1, const superlong& num2) {
+        char* chstr1 = _numtostr(num1);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) != '=');
+        delete[] chstr1;
         delete[] chstr2;
         return result;
     }
     friend bool operator!=(const superlong& num1, const superlong& num2) {
-        return (comparenumstr(num1.str, num2.str) != '=');
+        char* chstr1 = _strduplicate(num1.str);
+        char* chstr2 = _strduplicate(num2.str);
+        bool result = (comparenumstr(chstr1, chstr2) != '=');
+        delete[] chstr1;
+        delete[] chstr2;
+        return result;
     }
-    friend superlong& operator+=(superlong& num1, const superlong& num2) {
-        return num1 = (num1 + num2);
+    superlong& operator+=(const char*& str) {
+        return *this = (*this + superlong(str));
     }
-    friend superlong& operator-=(superlong& num1, const superlong& num2) {
-        return num1 = (num1 - num2);
+    superlong& operator+=(const int& num) {
+        return *this = (*this + superlong(num));
     }
-    friend superlong& operator*=(superlong& num1, const superlong& num2) {
-        return num1 = (num1 * num2);
+    superlong& operator+=(const int64_t& num) {
+        return *this = (*this + superlong(num));
+    }
+    superlong& operator+=(const uint64_t& num) {
+        return *this = (*this + superlong(num));
+    }
+    superlong& operator+=(const superlong& num) {
+        return *this = (*this + num);
+    }
+    superlong& operator-=(const char*& str) {
+        return *this = (*this - superlong(str));
+    }
+    superlong& operator-=(const int& num) {
+        return *this = (*this - superlong(num));
+    }
+    superlong& operator-=(const int64_t& num) {
+        return *this = (*this - superlong(num));
+    }
+    superlong& operator-=(const uint64_t& num) {
+        return *this = (*this - superlong(num));
+    }
+    superlong& operator-=(const superlong& num) {
+        return *this = (*this - num);
+    }
+    superlong& operator*=(const char*& str) {
+        return *this = (*this * superlong(str));
+    }
+    superlong& operator*=(const int& num) {
+        return *this = (*this * superlong(num));
+    }
+    superlong& operator*=(const int64_t& num) {
+        return *this = (*this * superlong(num));
+    }
+    superlong& operator*=(const uint64_t& num) {
+        return *this = (*this * superlong(num));
+    }
+    superlong& operator*=(const superlong& num) {
+        return *this = (*this * num);
     }
     /*
     friend superlong& operator/=(superlong& num1, const superlong& num2) {
@@ -397,7 +680,7 @@ public:
         return num1 = (num1 % num2);
     }
     */
-    friend superlong operator+(const superlong& num1, int num2) { 
+    friend superlong operator+(const superlong& num1, const int &num2) { 
         char* numstr1 = _strduplicate(num1.str);
         char* numstr2 = _numtostr(num2);
         matchzeros(numstr1, numstr2);
@@ -1125,6 +1408,8 @@ superlong::divisionstr superlong::dividenumstr(char* str1, char* str2, bool numb
     return {0, 0};
 }
 superlong superlong::factorial(const superlong& num) {
+    if (num == 0) return superlong(1);
+    if (num == 1) return superlong(1);
     superlong newnum(num), i(num);
     while (--i) newnum *= i;
     return newnum;
@@ -1135,22 +1420,34 @@ superlong::superlong() {
     minus = 0;
     str = zerostr();
 }
-//superlong::~superlong() {
-//    delete[] str;
-//}
-superlong::superlong(const char* newstr) {
+superlong::~superlong() {
+    delete[] str;
+}
+superlong::superlong(const char* &newstr) {
     if (!isnumeric(newstr)) superlong();
     else {
-        str = newstr;
+        str = _strduplicate(newstr);
         refresh();
     }
 }
 superlong::superlong(char* newstr) {
     if (!isnumeric(newstr)) superlong();
     else {
-        str = (const char*)newstr;
+        str = _strduplicate(newstr);
         refresh();
     }
+}
+superlong::superlong(const int &newstr) {
+    str = _numtostr(newstr);
+    refresh();
+}
+superlong::superlong(const int64_t &newstr) {
+    str = _numtostr(newstr);
+    refresh();
+}
+superlong::superlong(const uint64_t &newstr) {
+    str = _numtostr(newstr);
+    refresh();
 }
 superlong::superlong(superlong* samenum) {
     str = _strduplicate(samenum->str);
