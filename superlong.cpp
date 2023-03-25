@@ -302,7 +302,7 @@ public:
     bool minus;
     superlong();
     ~superlong();
-    superlong(const char*&);
+    superlong(const char*);
     superlong(char*);
     superlong(const int&);
     superlong(const int64_t&);
@@ -1408,11 +1408,15 @@ superlong::divisionstr superlong::dividenumstr(char* str1, char* str2, bool numb
     return {0, 0};
 }
 superlong superlong::factorial(const superlong& num) {
-    if (num == 0) return superlong(1);
-    if (num == 1) return superlong(1);
-    superlong newnum(num), i(num);
-    while (--i) newnum *= i;
-    return newnum;
+    superlong result;
+    if (num == 0) result = new superlong(1);
+    else if (num == 1) result = new superlong(1);
+    else {
+        superlong i(num);
+        result = new superlong(num);
+        while (--i) result *= i;
+    }
+    return result;
 }
 superlong::superlong() {
     length = 0;
@@ -1421,9 +1425,10 @@ superlong::superlong() {
     str = zerostr();
 }
 superlong::~superlong() {
+    //std::cout << "\n- Deconstructing superlong('" << str << "')\n";
     delete[] str;
 }
-superlong::superlong(const char* &newstr) {
+superlong::superlong(const char* newstr) {
     if (!isnumeric(newstr)) superlong();
     else {
         str = _strduplicate(newstr);
